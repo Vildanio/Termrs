@@ -1,12 +1,13 @@
-use crate::{buffer::WriteBuffer, Size};
-
-use super::{
+use crate::{
+    buffer::WriteBuffer,
     input::{
         KeyEventArgs, MouseButtonEventArgs, MouseEventArgs, MouseWheelEventArgs, PasteEventArgs,
         VisualInput, VisualLeafInput,
     },
-    Draw, MutableContext, Visual,
+    Size,
 };
+
+use super::{Draw, MutableContext, Visual};
 
 pub trait ContentLayout {
     fn draw(&self, child: &dyn Visual, buffer: &mut dyn WriteBuffer, available_size: Size) -> Size;

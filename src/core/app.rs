@@ -8,14 +8,12 @@ use crossterm::event::{self, Event, KeyEventKind, MouseEventKind};
 
 use crate::{
     buffer::{Terminal, VirtualBuffer},
-    visual::{
-        input::{
-            KeyEventArgs, MouseButtonEventArgs, MouseEventArgs, MouseWheelEventArgs,
-            PasteEventArgs, VisualInput,
-        },
-        MutableContext, RetainedVisualContext, Visual,
+    input::{
+        KeyEventArgs, MouseButtonEventArgs, MouseEventArgs, MouseWheelEventArgs, PasteEventArgs,
+        VisualInput,
     },
-    Rect, Size,
+    visual::{MutableContext, RetainedVisualContext, Visual},
+    Size,
 };
 
 const TICK_DURATION: Duration = Duration::from_millis(250);

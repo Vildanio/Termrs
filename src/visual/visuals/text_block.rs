@@ -1,6 +1,7 @@
 use crate::{
     buffer::WriteBuffer,
-    visual::{input::VisualInput, Draw, Visual},
+    input::VisualInput,
+    visual::{Draw, Visual},
     Position, Size,
 };
 

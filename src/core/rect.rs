@@ -1,6 +1,12 @@
-use std::{cmp::{max, min}, fmt};
+use std::{
+    cmp::{max, min},
+    fmt,
+};
 
-use crate::{visual::{Margin, Offset}, Position, Size};
+use crate::{
+    layout::{Margin, Offset},
+    Position, Size,
+};
 
 /// A Rectangular area.
 ///
@@ -175,7 +181,7 @@ impl Rect {
         let y = self.y.clamp(other.y, other.bottom().saturating_sub(height));
         Rect::new(x, y, width, height)
     }
-    
+
     pub const fn as_position(self) -> Position {
         Position {
             x: self.x,

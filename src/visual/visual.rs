@@ -1,6 +1,8 @@
-use crate::{buffer::WriteBuffer, Size};
-
-use super::input::{VisualInput, VisualLeafInput};
+use crate::{
+    buffer::WriteBuffer,
+    input::{VisualInput, VisualLeafInput},
+    Size,
+};
 
 pub trait Draw {
     /// Render itself to the given buffer

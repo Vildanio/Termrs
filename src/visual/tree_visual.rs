@@ -1,11 +1,14 @@
-use crate::{buffer::WriteBuffer, Size};
-
-use super::{
+use crate::{
+    buffer::WriteBuffer,
     input::{
         EmptyVisualLeafInput, KeyEventArgs, MouseButtonEventArgs, MouseEventArgs,
         MouseWheelEventArgs, PasteEventArgs, VisualInput, VisualLeafInput,
-    }, Draw, Layout, MutableContext, RetainedVisualContext, VStackLayout, Visual, VisualContextAction
+    },
+    layout::{Layout, VStackLayout},
+    Size,
 };
+
+use super::{Draw, MutableContext, RetainedVisualContext, Visual, VisualContextAction};
 
 /// Composes other visuals to implement the [`Visual`].
 pub struct TreeVisual<'a> {
