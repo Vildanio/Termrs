@@ -1,7 +1,7 @@
 use crate::{
     buffer::WriteBuffer,
     visual::{input::VisualInput, Draw, Visual},
-    Position, Rect, Size,
+    Position, Size,
 };
 
 pub struct TextBlock<'a> {
