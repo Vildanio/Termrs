@@ -9,7 +9,7 @@ use super::Rect;
 /// # Examples
 ///
 /// ```
-/// use ratatui::layout::{Position, Rect};
+/// use termrs::{Position, Rect};
 ///
 /// // the following are all equivalent
 /// let position = Position { x: 1, y: 2 };
