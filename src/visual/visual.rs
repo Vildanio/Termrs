@@ -13,9 +13,6 @@ pub trait Draw {
     /// and returns size of consumed region.
     fn draw(&self, buffer: &mut dyn WriteBuffer, available_size: Size) -> Size;
 
-    /// Redraws the given region of visual.
-    fn redraw(&self, buffer: &mut dyn WriteBuffer, region: Rect);
-
     /// Measures size of the visual.
     fn measure(&self, constraints: Size) -> Size;
 }
@@ -329,12 +326,6 @@ impl<'a> Draw for VisualTree<'a> {
 
     fn measure(&self, constraints: Size) -> Size {
         self.layout.measure(&self.children, constraints)
-    }
-
-    fn redraw(&self, buffer: &mut dyn WriteBuffer, region: Rect) {
-        let _ = buffer;
-        let _ = region;
-        todo!()
     }
 }
 

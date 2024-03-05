@@ -1,37 +1,23 @@
 use std::process::ExitCode;
 
-use crate::Rect;
-
-/// Provides mutable access to the visual tree.
+/// `MutableContext` provides mutable access to a visual.
 pub trait MutableContext {
-    /// Forces visual to be fully redrawed.
-    /// This method is needed because visual should not know its own size,
-    /// because this is responsibility of parent.
+    /// Forces a complete redraw of the visual. This is necessary as a visual element should not
+    /// be aware of its own size - this is the responsibility of the parent element.
     fn redraw(&mut self);
 
-    /// Forces the given region of visual to be redrawen
-    fn redraw_region(&mut self, region: Rect);
-
-    /// Forces the parent visual to remeasure the visual and be fully redrawed
-    /// if the visual bounds changed.
-    fn remeasure(&mut self);
-
-    // Focus set should be done in VisualContext
-    // but not in visual itself, because
-    // focus chagning should raise on_got_focus and on_lost_focus events.
-
-    /// Sets focus for the visual.
+    /// Sets the focus for the visual. This should be done in the `VisualContext` and not in the
+    /// visual itself, as changing focus should trigger `on_got_focus` and `on_lost_focus` events.
     fn set_focus(&mut self, value: bool);
 
-    /// The "proper" way to terminate the process.
+    /// Provides a proper way to terminate the process. The exit code is specified by the
+    /// `ExitCode` parameter.
     fn terminate_app(&mut self, exit_code: ExitCode);
 }
 
 /// Represents an action on [`VisualContext`]
 pub enum VisualContextAction {
-    RedrawVisual,
-    RedrawRegion(Rect),
-    Remeasure,
+    Redraw,
     SetFocus(bool),
     Terminate(ExitCode),
 }
@@ -39,9 +25,7 @@ pub enum VisualContextAction {
 impl VisualContextAction {
     pub fn apply(&self, visual_context: &mut dyn MutableContext) {
         match self {
-            VisualContextAction::RedrawVisual => visual_context.redraw(),
-            VisualContextAction::RedrawRegion(region) => visual_context.redraw_region(*region),
-            VisualContextAction::Remeasure => visual_context.remeasure(),
+            VisualContextAction::Redraw => visual_context.redraw(),
             VisualContextAction::SetFocus(value) => visual_context.set_focus(*value),
             VisualContextAction::Terminate(exit_code) => visual_context.terminate_app(*exit_code),
         }
@@ -68,15 +52,7 @@ impl<'a> MutableContext for RetainedVisualContext<'a> {
     }
 
     fn redraw(&mut self) {
-        self.actions.push(VisualContextAction::RedrawVisual);
-    }
-
-    fn redraw_region(&mut self, region: Rect) {
-        self.actions.push(VisualContextAction::RedrawRegion(region));
-    }
-
-    fn remeasure(&mut self) {
-        self.actions.push(VisualContextAction::Remeasure);
+        self.actions.push(VisualContextAction::Redraw);
     }
 
     fn terminate_app(&mut self, exit_code: ExitCode) {

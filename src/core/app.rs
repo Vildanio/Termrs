@@ -180,14 +180,6 @@ where
 
         self.terminal.flush();
     }
-
-    pub fn redraw_region(&mut self, region: Rect) {
-        let mut constrained_buffer = VirtualBuffer::new(Box::new(&mut self.terminal), region);
-
-        self.visual.redraw(&mut constrained_buffer, region);
-
-        self.terminal.flush();
-    }
 }
 
 pub struct AppContext<'a, V, W>
@@ -276,14 +268,6 @@ where
     }
 
     fn redraw(&mut self) {
-        self.app.redraw();
-    }
-
-    fn redraw_region(&mut self, region: Rect) {
-        self.app.redraw_region(region);
-    }
-
-    fn remeasure(&mut self) {
         self.app.redraw();
     }
 

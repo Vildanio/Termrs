@@ -29,10 +29,6 @@ impl<'a> Draw for TextBlock<'a> {
         Size::new(width, 1)
     }
 
-    fn redraw(&self, buffer: &mut dyn WriteBuffer, region: Rect) {
-        todo!()
-    }
-
     fn measure(&self, constraints: Size) -> Size {
         let width = (self.text.len() as u16).min(constraints.width);
 
