@@ -23,12 +23,12 @@ impl KeyEventArgs {
             state,
         }
     }
-    
+
     pub fn from_event(event: &KeyEvent) -> KeyEventArgs {
         Self {
             code: event.code,
             modifiers: event.modifiers,
-            state: event.state
+            state: event.state,
         }
     }
 }
@@ -96,18 +96,21 @@ pub struct MouseButtonEventArgs {
 
 impl MouseButtonEventArgs {
     pub fn new(position: Position, modifiers: KeyModifiers, buttons: MouseButton) -> Self {
-        Self { position, modifiers, button: buttons }
+        Self {
+            position,
+            modifiers,
+            button: buttons,
+        }
     }
 
     pub fn from_event(event: &MouseEvent, button: MouseButton) -> MouseButtonEventArgs {
         Self {
             position: Position::new(event.column, event.row),
             modifiers: event.modifiers,
-            button
+            button,
         }
     }
 }
-
 
 pub struct PasteEventArgs<'a> {
     text: &'a String,

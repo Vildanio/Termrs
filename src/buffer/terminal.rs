@@ -6,13 +6,16 @@ use std::{
 use crossterm::{
     cursor::{Hide, MoveTo, Show},
     queue,
-    style::{SetAttribute, SetBackgroundColor, SetForegroundColor},
+    style::{
+        Colors, SetAttribute, SetAttributes, SetBackgroundColor, SetColors, SetForegroundColor,
+        SetUnderlineColor,
+    },
     terminal::{self, Clear, ClearType},
     QueueableCommand,
 };
 
 use super::{ReadBuffer, WriteBuffer};
-use crate::{Attribute, Color, Position, Rect, Size};
+use crate::{style::Style, Attribute, Color, Position, Rect, Size};
 
 pub struct Terminal<W: Write> {
     /// The writer used to send commands to the terminal.
@@ -141,6 +144,19 @@ impl<W: Write> WriteBuffer for Terminal<W> {
         }
     }
 
+    fn set_underline_color(
+        &mut self,
+        position: Position,
+        color: Color,
+    ) -> Result<(), Box<dyn Error>> {
+        self.set_cursor(position)?;
+
+        match self.writer.queue(SetUnderlineColor(color)) {
+            Ok(_) => Ok(()),
+            Err(error) => Err(Box::new(error)),
+        }
+    }
+
     fn set_attribute(
         &mut self,
         position: Position,
@@ -179,10 +195,43 @@ impl<W: Write> WriteBuffer for Terminal<W> {
         Ok(())
     }
 
-    fn write_symbols(&mut self, position: Position, symbols: &str) -> Result<(), Box<dyn Error>> {
+    fn write_symbols(
+        &mut self,
+        position: Position,
+        symbols: &str,
+        style: Style,
+    ) -> Result<(), Box<dyn Error>> {
         self.set_cursor(position)?;
+        self.set_style(position, style)?;
 
         match self.writer.write(symbols.as_bytes()) {
+            Ok(_) => Ok(()),
+            Err(error) => Err(Box::new(error)),
+        }
+    }
+
+    fn set_style(&mut self, position: Position, style: Style) -> Result<(), Box<dyn Error>> {
+        self.set_cursor(position)?;
+
+        self.writer
+            .queue(SetColors(Colors::new(style.foreground, style.background)))?;
+        self.writer
+            .queue(SetUnderlineColor(style.underline_color))?;
+
+        match self.writer.queue(SetAttributes(style.attributes)) {
+            Ok(_) => Ok(()),
+            Err(error) => Err(Box::new(error)),
+        }
+    }
+
+    fn set_attributes(
+        &mut self,
+        position: Position,
+        attributes: crossterm::style::Attributes,
+    ) -> Result<(), Box<dyn Error>> {
+        self.set_cursor(position)?;
+
+        match self.writer.queue(SetAttributes(attributes)) {
             Ok(_) => Ok(()),
             Err(error) => Err(Box::new(error)),
         }

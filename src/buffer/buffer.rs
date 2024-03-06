@@ -1,6 +1,9 @@
 use std::{error::Error, ops::Index};
 
-use crate::{Attribute, Color, Position, Rect, Size};
+use crate::{
+    style::{Attribute, Attributes, Color, Style},
+    Position, Rect, Size,
+};
 
 pub trait Buffer: ReadBuffer + WriteBuffer {}
 
@@ -34,22 +37,43 @@ pub trait WriteBuffer {
         buffer: &dyn ReadBuffer,
     ) -> Result<(), Box<dyn Error>>;
 
+    fn write_symbols(
+        &mut self,
+        position: Position,
+        symbols: &str,
+        style: Style,
+    ) -> Result<(), Box<dyn Error>>;
+
     /// Set foreground color of cell in the given position
     fn set_forecolor(&mut self, position: Position, color: Color) -> Result<(), Box<dyn Error>>;
 
     /// Set background color of cell in the given position
     fn set_backcolor(&mut self, position: Position, color: Color) -> Result<(), Box<dyn Error>>;
 
+    /// Set underline color of cell in the given position
+    fn set_underline_color(
+        &mut self,
+        position: Position,
+        color: Color,
+    ) -> Result<(), Box<dyn Error>>;
+
     /// Sets symbol in cell in the given position
     fn set_symbol(&mut self, position: Position, symbol: char) -> Result<(), Box<dyn Error>>;
 
-    fn write_symbols(&mut self, position: Position, symbols: &str) -> Result<(), Box<dyn Error>>;
+    fn set_style(&mut self, position: Position, style: Style) -> Result<(), Box<dyn Error>>;
 
     /// Sets attribute in cell in the given position
     fn set_attribute(
         &mut self,
         position: Position,
         attribute: Attribute,
+    ) -> Result<(), Box<dyn Error>>;
+
+    /// Sets attributes in cell in the given position
+    fn set_attributes(
+        &mut self,
+        position: Position,
+        attributes: Attributes,
     ) -> Result<(), Box<dyn Error>>;
 
     /// Clears the whole buffer

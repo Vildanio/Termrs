@@ -9,6 +9,4 @@ pub struct Offset {
     pub y: i32,
 }
 
-impl Offset {
-    
-}
+impl Offset {}

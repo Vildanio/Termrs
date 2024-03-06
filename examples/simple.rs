@@ -1,14 +1,20 @@
 use termrs::{
     run_app,
+    style::Stylize,
     visual::{TextBlock, TreeVisual},
+    Attribute, Color,
 };
 
 fn main() {
     let mut visual = TreeVisual::vstack();
     visual.set_children(vec![
-        Box::new(TextBlock::new("first column")),
-        Box::new(TextBlock::new("second column")),
-        Box::new(TextBlock::new("third column")),
+        Box::new(TextBlock::new("first column").background(Color::Red)),
+        Box::new(TextBlock::new("second column").foreground(Color::Cyan)),
+        Box::new(
+            TextBlock::new("third column")
+                .attributes(Attribute::Underlined.into())
+                .underline_color(Color::Blue),
+        ),
     ]);
 
     run_app(visual);

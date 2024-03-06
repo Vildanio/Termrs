@@ -1,6 +1,6 @@
 use crossterm::style::Color;
 
-use crate::{Attribute, Position, Rect};
+use crate::{style::Style, Attribute, Position, Rect};
 
 use super::{ReadBuffer, WriteBuffer};
 
@@ -74,6 +74,16 @@ impl<'a> WriteBuffer for VirtualBuffer<'a> {
         self.original.set_symbol(position, symbol)
     }
 
+    fn set_underline_color(
+        &mut self,
+        position: Position,
+        color: Color,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let position = self.to_actual_position(position);
+
+        self.original.set_underline_color(position, color)
+    }
+
     fn set_attribute(
         &mut self,
         position: Position,
@@ -82,6 +92,26 @@ impl<'a> WriteBuffer for VirtualBuffer<'a> {
         let position = self.to_actual_position(position);
 
         self.original.set_attribute(position, attribute)
+    }
+
+    fn set_attributes(
+        &mut self,
+        position: Position,
+        attributes: crossterm::style::Attributes,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let position = self.to_actual_position(position);
+
+        self.original.set_attributes(position, attributes)
+    }
+
+    fn set_style(
+        &mut self,
+        position: Position,
+        style: Style,
+    ) -> Result<(), Box<dyn std::error::Error>> {
+        let position = self.to_actual_position(position);
+
+        self.original.set_style(position, style)
     }
 
     fn clear(&mut self) -> Result<(), Box<dyn std::error::Error>> {
@@ -107,6 +137,7 @@ impl<'a> WriteBuffer for VirtualBuffer<'a> {
         &mut self,
         position: Position,
         symbols: &str,
+        style: Style,
     ) -> Result<(), Box<dyn std::error::Error>> {
         let symbols_len = symbols.len();
 
@@ -122,6 +153,6 @@ impl<'a> WriteBuffer for VirtualBuffer<'a> {
 
         let position = self.to_actual_position(position);
 
-        self.original.write_symbols(position, symbols)
+        self.original.write_symbols(position, symbols, style)
     }
 }

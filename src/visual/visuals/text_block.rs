@@ -1,12 +1,14 @@
 use crate::{
     buffer::WriteBuffer,
     input::VisualInput,
+    style::{Style, Styled},
     visual::{Draw, Visual},
     Position, Size,
 };
 
 pub struct TextBlock<'a> {
     text: &'a str,
+    style: Style,
 }
 
 impl<'a> TextBlock<'a> {
@@ -15,7 +17,23 @@ impl<'a> TextBlock<'a> {
             panic!("text length should be less than u16.MAX");
         }
 
-        Self { text }
+        Self {
+            text,
+            style: Style::default(),
+        }
+    }
+}
+
+impl<'a> Styled for TextBlock<'a> {
+    type Item = TextBlock<'a>;
+
+    fn style(&self) -> Style {
+        self.style
+    }
+
+    fn set_style(mut self, style: Style) -> Self::Item {
+        self.style = style;
+        self
     }
 }
 
@@ -25,7 +43,9 @@ impl<'a> Draw for TextBlock<'a> {
     fn draw(&self, buffer: &mut dyn WriteBuffer, available_size: Size) -> Size {
         let width = (self.text.len() as u16).min(available_size.width);
 
-        buffer.write_symbols(Position::default(), self.text);
+        buffer
+            .write_symbols(Position::default(), self.text, self.style)
+            .expect("Cannot write to buffer");
 
         Size::new(width, 1)
     }
