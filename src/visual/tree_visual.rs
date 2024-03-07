@@ -8,7 +8,7 @@ use crate::{
     Size,
 };
 
-use super::{Draw, MutableContext, RetainedVisualContext, Visual, VisualContextAction};
+use super::{Draw, MutableContext, Visual};
 
 /// Composes other visuals to implement the [`Visual`].
 pub struct TreeVisual<'a> {
@@ -64,27 +64,12 @@ impl<'a> TreeVisual<'a> {
     pub fn children(&self) -> &Vec<Box<dyn Visual>> {
         &self.children
     }
-
-    fn apply_actions(actions: &Vec<VisualContextAction>, visual_context: &mut dyn MutableContext) {
-        // Apply the actions to the mutable context
-        for action in actions {
-            action.apply(visual_context);
-        }
-    }
 }
 
 impl<'a> VisualInput for TreeVisual<'a> {
     fn on_paste(&mut self, args: &PasteEventArgs, visual_context: &mut dyn MutableContext) -> bool {
-        // All actions that this visual will perform on the given context.
-        // It consist of actions that apply:
-        // 1. input_handler
-        // 2. focused child
-        let mut actions: Vec<VisualContextAction> = vec![];
-
         let mut bubble_handled = false;
-        let tunnel_handled = self
-            .input_handler
-            .tunnel_paste(args, &mut RetainedVisualContext::new(&mut actions));
+        let tunnel_handled = self.input_handler.tunnel_paste(args, visual_context);
 
         if !tunnel_handled {
             if let Some(ref mut focused) = self.focused {
@@ -93,41 +78,26 @@ impl<'a> VisualInput for TreeVisual<'a> {
         }
 
         if !bubble_handled {
-            bubble_handled = self
-                .input_handler
-                .bubble_paste(args, &mut RetainedVisualContext::new(&mut actions));
+            bubble_handled = self.input_handler.bubble_paste(args, visual_context);
         }
-
-        // Apply the actions to the mutable context
-        Self::apply_actions(&actions, visual_context);
 
         bubble_handled
     }
 
     fn on_got_focus(&mut self, visual_context: &mut dyn MutableContext) {
-        let mut actions: Vec<VisualContextAction> = vec![];
-
-        self.input_handler
-            .on_got_focus(&mut RetainedVisualContext::new(&mut actions));
+        self.input_handler.on_got_focus(visual_context);
 
         for child in self.children.iter_mut() {
-            child.on_got_focus(&mut RetainedVisualContext::new(&mut actions));
+            child.on_got_focus(visual_context);
         }
-
-        Self::apply_actions(&actions, visual_context);
     }
 
     fn on_lost_focus(&mut self, visual_context: &mut dyn MutableContext) {
-        let mut actions: Vec<VisualContextAction> = vec![];
-
-        self.input_handler
-            .on_lost_focus(&mut RetainedVisualContext::new(&mut actions));
+        self.input_handler.on_lost_focus(visual_context);
 
         for child in self.children.iter_mut() {
-            child.on_lost_focus(&mut RetainedVisualContext::new(&mut actions));
+            child.on_lost_focus(visual_context);
         }
-
-        Self::apply_actions(&actions, visual_context);
     }
 
     fn on_key_press(
@@ -135,12 +105,8 @@ impl<'a> VisualInput for TreeVisual<'a> {
         args: &KeyEventArgs,
         visual_context: &mut dyn MutableContext,
     ) -> bool {
-        let mut actions: Vec<VisualContextAction> = vec![];
-
         let mut bubble_handled = false;
-        let tunnel_handled = self
-            .input_handler
-            .tunnel_key_press(args, &mut RetainedVisualContext::new(&mut actions));
+        let tunnel_handled = self.input_handler.tunnel_key_press(args, visual_context);
 
         if !tunnel_handled {
             if let Some(ref mut focused) = self.focused {
@@ -149,12 +115,8 @@ impl<'a> VisualInput for TreeVisual<'a> {
         }
 
         if !bubble_handled {
-            bubble_handled = self
-                .input_handler
-                .bubble_key_press(args, &mut RetainedVisualContext::new(&mut actions));
+            bubble_handled = self.input_handler.bubble_key_press(args, visual_context);
         }
-
-        Self::apply_actions(&actions, visual_context);
 
         bubble_handled
     }
@@ -164,12 +126,8 @@ impl<'a> VisualInput for TreeVisual<'a> {
         args: &KeyEventArgs,
         visual_context: &mut dyn MutableContext,
     ) -> bool {
-        let mut actions: Vec<VisualContextAction> = vec![];
-
         let mut bubble_handled = false;
-        let tunnel_handled = self
-            .input_handler
-            .tunnel_key_release(args, &mut RetainedVisualContext::new(&mut actions));
+        let tunnel_handled = self.input_handler.tunnel_key_release(args, visual_context);
 
         if !tunnel_handled {
             if let Some(ref mut focused) = self.focused {
@@ -178,12 +136,8 @@ impl<'a> VisualInput for TreeVisual<'a> {
         }
 
         if !bubble_handled {
-            bubble_handled = self
-                .input_handler
-                .bubble_key_release(args, &mut RetainedVisualContext::new(&mut actions));
+            bubble_handled = self.input_handler.bubble_key_release(args, visual_context);
         }
-
-        Self::apply_actions(&actions, visual_context);
 
         bubble_handled
     }
@@ -193,12 +147,8 @@ impl<'a> VisualInput for TreeVisual<'a> {
         args: &MouseEventArgs,
         visual_context: &mut dyn MutableContext,
     ) -> bool {
-        let mut actions: Vec<VisualContextAction> = vec![];
-
         let mut bubble_handled = false;
-        let tunnel_handled = self
-            .input_handler
-            .tunnel_mouse_move(args, &mut RetainedVisualContext::new(&mut actions));
+        let tunnel_handled = self.input_handler.tunnel_mouse_move(args, visual_context);
 
         if !tunnel_handled {
             if let Some(ref mut focused) = self.focused {
@@ -207,12 +157,8 @@ impl<'a> VisualInput for TreeVisual<'a> {
         }
 
         if !bubble_handled {
-            bubble_handled = self
-                .input_handler
-                .bubble_mouse_move(args, &mut RetainedVisualContext::new(&mut actions));
+            bubble_handled = self.input_handler.bubble_mouse_move(args, visual_context);
         }
-
-        Self::apply_actions(&actions, visual_context);
 
         bubble_handled
     }
@@ -222,12 +168,8 @@ impl<'a> VisualInput for TreeVisual<'a> {
         args: &MouseWheelEventArgs,
         visual_context: &mut dyn MutableContext,
     ) -> bool {
-        let mut actions: Vec<VisualContextAction> = vec![];
-
         let mut bubble_handled = false;
-        let tunnel_handled = self
-            .input_handler
-            .tunnel_mouse_wheel(args, &mut RetainedVisualContext::new(&mut actions));
+        let tunnel_handled = self.input_handler.tunnel_mouse_wheel(args, visual_context);
 
         if !tunnel_handled {
             if let Some(ref mut focused) = self.focused {
@@ -236,12 +178,8 @@ impl<'a> VisualInput for TreeVisual<'a> {
         }
 
         if !bubble_handled {
-            bubble_handled = self
-                .input_handler
-                .bubble_mouse_wheel(args, &mut RetainedVisualContext::new(&mut actions));
+            bubble_handled = self.input_handler.bubble_mouse_wheel(args, visual_context);
         }
-
-        Self::apply_actions(&actions, visual_context);
 
         bubble_handled
     }
@@ -251,12 +189,8 @@ impl<'a> VisualInput for TreeVisual<'a> {
         args: &MouseButtonEventArgs,
         visual_context: &mut dyn MutableContext,
     ) -> bool {
-        let mut actions: Vec<VisualContextAction> = vec![];
-
         let mut bubble_handled = false;
-        let tunnel_handled = self
-            .input_handler
-            .tunnel_mouse_up(args, &mut RetainedVisualContext::new(&mut actions));
+        let tunnel_handled = self.input_handler.tunnel_mouse_up(args, visual_context);
 
         if !tunnel_handled {
             if let Some(ref mut focused) = self.focused {
@@ -265,12 +199,8 @@ impl<'a> VisualInput for TreeVisual<'a> {
         }
 
         if !bubble_handled {
-            bubble_handled = self
-                .input_handler
-                .bubble_mouse_up(args, &mut RetainedVisualContext::new(&mut actions));
+            bubble_handled = self.input_handler.bubble_mouse_up(args, visual_context);
         }
-
-        Self::apply_actions(&actions, visual_context);
 
         bubble_handled
     }
@@ -280,12 +210,8 @@ impl<'a> VisualInput for TreeVisual<'a> {
         args: &MouseButtonEventArgs,
         visual_context: &mut dyn MutableContext,
     ) -> bool {
-        let mut actions: Vec<VisualContextAction> = vec![];
-
         let mut bubble_handled = false;
-        let tunnel_handled = self
-            .input_handler
-            .tunnel_mouse_down(args, &mut RetainedVisualContext::new(&mut actions));
+        let tunnel_handled = self.input_handler.tunnel_mouse_down(args, visual_context);
 
         if !tunnel_handled {
             if let Some(ref mut focused) = self.focused {
@@ -294,12 +220,8 @@ impl<'a> VisualInput for TreeVisual<'a> {
         }
 
         if !bubble_handled {
-            bubble_handled = self
-                .input_handler
-                .bubble_mouse_down(args, &mut RetainedVisualContext::new(&mut actions));
+            bubble_handled = self.input_handler.bubble_mouse_down(args, visual_context);
         }
-
-        Self::apply_actions(&actions, visual_context);
 
         bubble_handled
     }

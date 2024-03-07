@@ -10,9 +10,8 @@ use crate::{
     buffer::{Terminal, VirtualBuffer},
     input::{
         KeyEventArgs, MouseButtonEventArgs, MouseEventArgs, MouseWheelEventArgs, PasteEventArgs,
-        VisualInput,
     },
-    visual::{MutableContext, RetainedVisualContext, Visual},
+    visual::{RetainedVisualContext, Visual, VisualContextAction},
     Size,
 };
 
@@ -87,70 +86,69 @@ where
 
     pub fn process_event(&mut self, event: &Event) {
         let mut actions = vec![];
-        let mut context = RetainedVisualContext::new(&mut actions);
+        let context = &mut RetainedVisualContext::new(&mut actions);
 
         match event {
-            Event::FocusGained => self.visual.on_got_focus(&mut context),
-            Event::FocusLost => self.visual.on_lost_focus(&mut context),
+            Event::FocusGained => self.visual.on_got_focus(context),
+            Event::FocusLost => self.visual.on_lost_focus(context),
             Event::Key(key_event) => match key_event.kind {
                 KeyEventKind::Press | KeyEventKind::Repeat => {
                     self.visual
-                        .on_key_press(&KeyEventArgs::from_event(key_event), &mut context);
+                        .on_key_press(&KeyEventArgs::from_event(key_event), context);
                 }
                 KeyEventKind::Release => {
                     self.visual
-                        .on_key_release(&KeyEventArgs::from_event(key_event), &mut context);
+                        .on_key_release(&KeyEventArgs::from_event(key_event), context);
                 }
             },
             Event::Mouse(mouse_event) => match mouse_event.kind {
                 MouseEventKind::Down(mouse_button) => {
                     self.visual.on_mouse_down(
                         &MouseButtonEventArgs::from_event(mouse_event, mouse_button),
-                        &mut context,
+                        context,
                     );
                 }
                 MouseEventKind::Up(mouse_button) => {
                     self.visual.on_mouse_up(
                         &MouseButtonEventArgs::from_event(mouse_event, mouse_button),
-                        &mut context,
+                        context,
                     );
                 }
                 MouseEventKind::Drag(_) => {
                     self.visual
-                        .on_mouse_move(&MouseEventArgs::from_event(mouse_event), &mut context);
+                        .on_mouse_move(&MouseEventArgs::from_event(mouse_event), context);
                 }
                 MouseEventKind::Moved => {
                     self.visual
-                        .on_mouse_move(&MouseEventArgs::from_event(mouse_event), &mut context);
+                        .on_mouse_move(&MouseEventArgs::from_event(mouse_event), context);
                 }
                 MouseEventKind::ScrollDown => {
                     self.visual.on_mouse_wheel(
                         &MouseWheelEventArgs::from_event(mouse_event, 1, true),
-                        &mut context,
+                        context,
                     );
                 }
                 MouseEventKind::ScrollUp => {
                     self.visual.on_mouse_wheel(
                         &MouseWheelEventArgs::from_event(mouse_event, -1, true),
-                        &mut context,
+                        context,
                     );
                 }
                 MouseEventKind::ScrollLeft => {
                     self.visual.on_mouse_wheel(
                         &MouseWheelEventArgs::from_event(mouse_event, -1, false),
-                        &mut context,
+                        context,
                     );
                 }
                 MouseEventKind::ScrollRight => {
                     self.visual.on_mouse_wheel(
                         &MouseWheelEventArgs::from_event(mouse_event, 1, false),
-                        &mut context,
+                        context,
                     );
                 }
             },
             Event::Paste(str) => {
-                self.visual
-                    .on_paste(&PasteEventArgs::new(str), &mut context);
+                self.visual.on_paste(&PasteEventArgs::new(str), context);
             }
             Event::Resize(column, row) => {
                 let desired_size = self
@@ -165,6 +163,14 @@ where
                 self.visual.draw(&mut virtual_buffer, size);
             }
         }
+
+        for action in actions {
+            match action {
+                VisualContextAction::Redraw => self.redraw(),
+                VisualContextAction::SetFocus(focus) => self.is_focused = focus,
+                VisualContextAction::Terminate(exit_code) => self.exit_code = Some(exit_code),
+            }
+        }
     }
 
     pub fn redraw(&mut self) {
@@ -176,100 +182,6 @@ where
 
         self.visual.draw(&mut self.terminal, draw_size);
 
-        self.terminal.flush();
-    }
-}
-
-pub struct AppContext<'a, V, W>
-where
-    W: Write,
-    V: Visual,
-{
-    /// Mutable reference to the terminal
-    /// and the root visual.
-    app: &'a mut App<V, W>,
-}
-
-impl<'a, V, W> VisualInput for AppContext<'a, V, W>
-where
-    W: Write,
-    V: Visual,
-{
-    fn on_paste(&mut self, args: &PasteEventArgs, visual_context: &mut dyn MutableContext) -> bool {
-        self.app.visual.on_paste(args, visual_context)
-    }
-
-    fn on_got_focus(&mut self, visual_context: &mut dyn MutableContext) {
-        self.app.visual.on_got_focus(visual_context)
-    }
-
-    fn on_lost_focus(&mut self, visual_context: &mut dyn MutableContext) {
-        self.app.visual.on_lost_focus(visual_context)
-    }
-
-    fn on_key_press(
-        &mut self,
-        args: &KeyEventArgs,
-        visual_context: &mut dyn MutableContext,
-    ) -> bool {
-        self.app.visual.on_key_press(args, visual_context)
-    }
-
-    fn on_key_release(
-        &mut self,
-        args: &KeyEventArgs,
-        visual_context: &mut dyn MutableContext,
-    ) -> bool {
-        self.app.visual.on_key_release(args, visual_context)
-    }
-
-    fn on_mouse_move(
-        &mut self,
-        args: &MouseEventArgs,
-        visual_context: &mut dyn MutableContext,
-    ) -> bool {
-        self.app.visual.on_mouse_move(args, visual_context)
-    }
-
-    fn on_mouse_wheel(
-        &mut self,
-        args: &MouseWheelEventArgs,
-        visual_context: &mut dyn MutableContext,
-    ) -> bool {
-        self.app.visual.on_mouse_wheel(args, visual_context)
-    }
-
-    fn on_mouse_up(
-        &mut self,
-        args: &MouseButtonEventArgs,
-        visual_context: &mut dyn MutableContext,
-    ) -> bool {
-        self.app.visual.on_mouse_up(args, visual_context)
-    }
-
-    fn on_mouse_down(
-        &mut self,
-        args: &MouseButtonEventArgs,
-        visual_context: &mut dyn MutableContext,
-    ) -> bool {
-        self.app.visual.on_mouse_down(args, visual_context)
-    }
-}
-
-impl<'a, V, W> MutableContext for AppContext<'a, V, W>
-where
-    W: Write,
-    V: Visual,
-{
-    fn set_focus(&mut self, value: bool) {
-        self.app.is_focused = value;
-    }
-
-    fn redraw(&mut self) {
-        self.app.redraw();
-    }
-
-    fn terminate_app(&mut self, exit_code: ExitCode) {
-        self.app.exit_code = Some(exit_code);
+        self.terminal.flush().expect("Cannot flush terminal");
     }
 }
