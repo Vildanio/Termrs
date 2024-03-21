@@ -157,7 +157,7 @@ where
                 let size = desired_size.clip(self.terminal.size());
 
                 let mut virtual_buffer =
-                    VirtualBuffer::new(Box::new(&mut self.terminal), size.into());
+                    VirtualBuffer::new(&mut self.terminal, size.into());
 
                 self.visual.draw(&mut virtual_buffer, size);
             }

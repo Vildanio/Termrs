@@ -12,13 +12,13 @@ pub trait Layout {
     /// Draws the children to the given buffer
     fn draw(
         &self,
-        children: &Vec<Box<dyn Visual>>,
+        children: &[Box<dyn Visual>],
         buffer: &mut dyn WriteBuffer,
         available_size: Size,
     ) -> Box<dyn VisualArrangement>;
 
     /// Measures extent of the children
-    fn measure(&self, children: &Vec<Box<dyn Visual>>, constraints: Size) -> Size;
+    fn measure(&self, children: &[Box<dyn Visual>], constraints: Size) -> Size;
 }
 
 pub trait VisualArrangement {
@@ -33,7 +33,7 @@ pub struct VStackLayout;
 impl Layout for VStackLayout {
     fn draw(
         &self,
-        children: &Vec<Box<dyn Visual>>,
+        children: &[Box<dyn Visual>],
         buffer: &mut dyn WriteBuffer,
         available_size: Size,
     ) -> Box<dyn VisualArrangement> {
@@ -43,12 +43,12 @@ impl Layout for VStackLayout {
         let mut y = 0;
 
         for child in children {
-            if draw_size.height <= 0 {
+            if draw_size.height == 0 {
                 break;
             }
 
             let mut virtual_buffer = VirtualBuffer::new(
-                Box::new(buffer),
+                buffer,
                 Rect::new(0, y, draw_size.width, draw_size.height),
             );
 
@@ -66,7 +66,7 @@ impl Layout for VStackLayout {
         })
     }
 
-    fn measure(&self, children: &Vec<Box<dyn Visual>>, constraints: Size) -> Size {
+    fn measure(&self, children: &[Box<dyn Visual>], constraints: Size) -> Size {
         let mut available_size = constraints;
         let mut desired_size = Size::default();
 
@@ -102,14 +102,10 @@ impl VisualArrangement for RectArrangement {
         rect.as_size()
     }
     fn visual_hit(&self, position: Position) -> Option<usize> {
-        let mut index = 0;
-
-        for rect in &self.rects {
+        for (index, rect) in self.rects.iter().enumerate() {
             if rect.contains(position) {
                 return Some(index);
             }
-
-            index += 1;
         }
 
         None

@@ -27,10 +27,8 @@ impl VisualInput for ContentVisual {
         let mut bubble_handled = false;
         let tunnel_handled = self.input_handler.tunnel_paste(args, visual_context);
 
-        if !tunnel_handled {
-            if self.is_child_focused {
-                bubble_handled = self.child.on_paste(args, visual_context);
-            }
+        if !tunnel_handled && self.is_child_focused {
+            bubble_handled = self.child.on_paste(args, visual_context);
         }
 
         if !bubble_handled {
@@ -56,10 +54,8 @@ impl VisualInput for ContentVisual {
         let mut bubble_handled = false;
         let tunnel_handled = self.input_handler.tunnel_key_press(args, visual_context);
 
-        if !tunnel_handled {
-            if self.is_child_focused {
-                bubble_handled = self.child.on_key_press(args, visual_context);
-            }
+        if !tunnel_handled && self.is_child_focused {
+            bubble_handled = self.child.on_key_press(args, visual_context);
         }
 
         if !bubble_handled {
@@ -77,10 +73,8 @@ impl VisualInput for ContentVisual {
         let mut bubble_handled = false;
         let tunnel_handled = self.input_handler.tunnel_key_release(args, visual_context);
 
-        if !tunnel_handled {
-            if self.is_child_focused {
-                bubble_handled = self.child.on_key_release(args, visual_context);
-            }
+        if !tunnel_handled && self.is_child_focused {
+            bubble_handled = self.child.on_key_release(args, visual_context);
         }
 
         if !bubble_handled {
@@ -98,10 +92,8 @@ impl VisualInput for ContentVisual {
         let mut bubble_handled = false;
         let tunnel_handled = self.input_handler.tunnel_mouse_move(args, visual_context);
 
-        if !tunnel_handled {
-            if self.is_child_focused {
-                bubble_handled = self.child.on_mouse_move(args, visual_context);
-            }
+        if !tunnel_handled && self.is_child_focused {
+            bubble_handled = self.child.on_mouse_move(args, visual_context);
         }
 
         if !bubble_handled {
@@ -119,10 +111,8 @@ impl VisualInput for ContentVisual {
         let mut bubble_handled = false;
         let tunnel_handled = self.input_handler.tunnel_mouse_wheel(args, visual_context);
 
-        if !tunnel_handled {
-            if self.is_child_focused {
-                bubble_handled = self.child.on_mouse_wheel(args, visual_context);
-            }
+        if !tunnel_handled && self.is_child_focused {
+            bubble_handled = self.child.on_mouse_wheel(args, visual_context);
         }
 
         if !bubble_handled {
@@ -140,10 +130,8 @@ impl VisualInput for ContentVisual {
         let mut bubble_handled = false;
         let tunnel_handled = self.input_handler.tunnel_mouse_up(args, visual_context);
 
-        if !tunnel_handled {
-            if self.is_child_focused {
-                bubble_handled = self.child.on_mouse_up(args, visual_context);
-            }
+        if !tunnel_handled && self.is_child_focused {
+            bubble_handled = self.child.on_mouse_up(args, visual_context);
         }
 
         if !bubble_handled {
@@ -161,10 +149,8 @@ impl VisualInput for ContentVisual {
         let mut bubble_handled = false;
         let tunnel_handled = self.input_handler.tunnel_mouse_down(args, visual_context);
 
-        if !tunnel_handled {
-            if self.is_child_focused {
-                bubble_handled = self.child.on_mouse_down(args, visual_context);
-            }
+        if !tunnel_handled && self.is_child_focused {
+            bubble_handled = self.child.on_mouse_down(args, visual_context);
         }
 
         if !bubble_handled {

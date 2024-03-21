@@ -5,12 +5,12 @@ use crate::{
 };
 
 pub struct VirtualBuffer<'a> {
-    original: Box<&'a mut dyn WriteBuffer>,
+    original: &'a mut dyn WriteBuffer,
     region: Rect,
 }
 
 impl<'a> VirtualBuffer<'a> {
-    pub fn new(original: Box<&'a mut dyn WriteBuffer>, region: Rect) -> Self {
+    pub fn new(original: &'a mut dyn WriteBuffer, region: Rect) -> Self {
         Self { original, region }
     }
 
