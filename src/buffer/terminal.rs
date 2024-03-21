@@ -109,7 +109,7 @@ impl<W: Write> WriteBuffer for Terminal<W> {
 
         while position.y < bottom {
             self.set_cursor(position)?;
-            self.writer.write(buffer.bytes(position, width))?;
+            self.writer.write_all(buffer.bytes(position, width))?;
 
             position.y += 1;
         }
@@ -184,13 +184,13 @@ impl<W: Write> WriteBuffer for Terminal<W> {
         // #[not_tested]
         // check bounds
 
-        let whitespaces: &[u8] = &vec![' ' as u8; rect.width as usize];
+        let whitespaces: &[u8] = &vec![b' '; rect.width as usize];
 
         let mut position = Position::new(rect.x, rect.y);
 
         while position.y < rect.bottom() {
             self.set_cursor(position)?;
-            self.writer.write(whitespaces)?;
+            self.writer.write_all(whitespaces)?;
 
             position.y += 1;
         }

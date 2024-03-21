@@ -113,15 +113,15 @@ impl MouseButtonEventArgs {
 }
 
 pub struct PasteEventArgs<'a> {
-    text: &'a String,
+    text: &'a str,
 }
 
 impl<'a> PasteEventArgs<'a> {
-    pub fn new(text: &'a String) -> Self {
+    pub fn new(text: &'a str) -> Self {
         Self { text }
     }
 
     pub fn text(&self) -> &str {
-        &self.text
+        self.text
     }
 }
