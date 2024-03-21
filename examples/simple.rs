@@ -1,16 +1,14 @@
 use std::process::ExitCode;
 
 use termrs::{
-    input::EmptyVisualLeafInput,
-    layout::VStackLayout,
     run_app,
     style::Stylize,
-    visual::{TextBlock, TreeVisual},
+    visual::{self, TextBlock},
     Attribute, Color,
 };
 
 fn main() -> ExitCode {
-    let visual = TreeVisual::<VStackLayout, EmptyVisualLeafInput>::vstack(vec![
+    let visual = visual::vstack(vec![
         Box::new(TextBlock::new("first column").background(Color::Red)),
         Box::new(TextBlock::new("second column").foreground(Color::Cyan)),
         Box::new(

@@ -1,10 +1,10 @@
 use crate::{
     buffer::WriteBuffer,
     input::{
-        EmptyVisualLeafInput, KeyEventArgs, MouseButtonEventArgs, MouseEventArgs,
+        KeyEventArgs, MouseButtonEventArgs, MouseEventArgs,
         MouseWheelEventArgs, PasteEventArgs, VisualInput, VisualLeafInput,
     },
-    layout::{Layout, VStackLayout},
+    layout::Layout,
     visual::{Draw, MutableContext, Visual},
     Size,
 };
@@ -57,12 +57,6 @@ where
     // TODO: Replace with abstract iterator
     pub fn children(&self) -> &Vec<Box<dyn Visual>> {
         &self.children
-    }
-
-    pub fn vstack(
-        children: Vec<Box<dyn Visual>>,
-    ) -> TreeVisual<'a, VStackLayout, EmptyVisualLeafInput> {
-        TreeVisual::new(VStackLayout, EmptyVisualLeafInput, children)
     }
 }
 
