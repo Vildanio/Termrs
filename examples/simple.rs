@@ -6,8 +6,7 @@ use termrs::{
 };
 
 fn main() {
-    let mut visual = TreeVisual::vstack();
-    visual.set_children(vec![
+    let visual = TreeVisual::vstack().with_children(vec![
         Box::new(TextBlock::new("first column").background(Color::Red)),
         Box::new(TextBlock::new("second column").foreground(Color::Cyan)),
         Box::new(

@@ -39,6 +39,21 @@ impl<'a> TreeVisual<'a> {
             focused: None,
         }
     }
+    
+    pub fn with_children(mut self, children: Vec<Box<dyn Visual>>) -> Self {
+        self.children = children;
+        self
+    }
+
+    pub fn with_input_handler(mut self, input_handler: Box<dyn VisualLeafInput>) -> Self {
+        self.input_handler = input_handler;
+        self
+    }
+
+    // TODO: Replace with abstract iterator
+    pub fn children(&self) -> &Vec<Box<dyn Visual>> {
+        &self.children
+    }
 
     pub fn vstack() -> TreeVisual<'a> {
         TreeVisual::new(
@@ -46,19 +61,6 @@ impl<'a> TreeVisual<'a> {
             Box::new(EmptyVisualLeafInput),
             vec![],
         )
-    }
-
-    pub fn set_children(&mut self, children: Vec<Box<dyn Visual>>) {
-        self.children = children;
-    }
-
-    pub fn set_input_handler(&mut self, input_handler: Box<dyn VisualLeafInput>) {
-        self.input_handler = input_handler;
-    }
-
-    // TODO: Replace with abstract iterator
-    pub fn children(&self) -> &Vec<Box<dyn Visual>> {
-        &self.children
     }
 }
 
