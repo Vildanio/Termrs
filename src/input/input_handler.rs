@@ -1,7 +1,9 @@
-use super::{
-    KeyEventArgs, MouseButtonEventArgs, MouseEventArgs, MouseWheelEventArgs, PasteEventArgs,
+use crate::{
+    input::{
+        KeyEventArgs, MouseButtonEventArgs, MouseEventArgs, MouseWheelEventArgs, PasteEventArgs,
+    },
+    visual::MutableContext,
 };
-use crate::visual::MutableContext;
 
 pub struct EmptyVisualLeafInput;
 
@@ -15,6 +17,7 @@ pub trait VisualLeafInput {
     ) -> bool {
         false
     }
+
     fn bubble_paste(
         &mut self,
         args: &PasteEventArgs,

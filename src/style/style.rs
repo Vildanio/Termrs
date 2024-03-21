@@ -1,4 +1,4 @@
-use crossterm::style::{Attributes, Color};
+pub use crossterm::style::{Attributes, Color};
 
 #[derive(Debug, Clone, Copy, Eq, PartialEq)]
 pub struct Style {
