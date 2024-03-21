@@ -1,27 +1,27 @@
-mod border;
-mod button;
-mod hstack;
-mod list;
 mod text_block;
-mod text_box;
-mod tree;
 mod vstack;
 
 pub use text_block::TextBlock;
 
-use crate::{layout::VStackLayout, visual::TreeVisual};
-
-pub type VStack<'a, I> = TreeVisual<'a, VStackLayout, I>;
-
+/// Creates a vertical stack visual with the provided visuals as children.
 #[macro_export]
 macro_rules! vstack {
     ($($x:expr),*) => {{
         let mut children = termrs::visuals![$($x),*];
 
-        VStack::new(termrs::layout::VStackLayout, termrs::input::EmptyVisualLeafInput, children)
+        termrs::visual::TreeVisual::new(termrs::layout::VStackLayout, termrs::input::EmptyVisualLeafInput, children)
     }};
 }
 
+/// Creates a [`TextBlock`].
+#[macro_export]
+macro_rules! text_block {
+    ($text:expr) => {
+        TextBlock::new($text)
+    };
+}
+
+/// Creates a [`Vec`] of boxed visuals.
 #[macro_export]
 macro_rules! visuals {
     ($($x:expr),*) => {{
