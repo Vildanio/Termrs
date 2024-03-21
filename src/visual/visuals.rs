@@ -9,13 +9,30 @@ mod vstack;
 
 pub use text_block::TextBlock;
 
-use crate::{input::EmptyVisualLeafInput, layout::VStackLayout};
+use crate::{layout::VStackLayout, visual::TreeVisual};
 
-use super::{TreeVisual, Visual};
+pub type VStack<'a, I> = TreeVisual<'a, VStackLayout, I>;
 
-/// Creates a vertical stack visual.
-pub fn vstack<'a>(
-    children: Vec<Box<dyn Visual>>,
-) -> TreeVisual<'a, VStackLayout, EmptyVisualLeafInput> {
-    TreeVisual::new(VStackLayout, EmptyVisualLeafInput, children)
+#[macro_export]
+macro_rules! vstack {
+    ($($x:expr),*) => {{
+        let mut children = termrs::visuals![$($x),*];
+
+        VStack::new(termrs::layout::VStackLayout, termrs::input::EmptyVisualLeafInput, children)
+    }};
+}
+
+#[macro_export]
+macro_rules! visuals {
+    ($($x:expr),*) => {{
+        // TODO(opt): Create vector with capacity.
+
+        let mut children: Vec<Box<dyn termrs::visual::Visual>> = vec![];
+
+        $(
+            children.push(Box::new($x));
+        )*
+
+        children
+    }};
 }

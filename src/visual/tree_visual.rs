@@ -1,8 +1,8 @@
 use crate::{
     buffer::WriteBuffer,
     input::{
-        KeyEventArgs, MouseButtonEventArgs, MouseEventArgs,
-        MouseWheelEventArgs, PasteEventArgs, VisualInput, VisualLeafInput,
+        KeyEventArgs, MouseButtonEventArgs, MouseEventArgs, MouseWheelEventArgs, PasteEventArgs,
+        VisualInput, VisualLeafInput,
     },
     layout::Layout,
     visual::{Draw, MutableContext, Visual},
