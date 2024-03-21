@@ -1,22 +1,24 @@
+use std::process::ExitCode;
+
 use termrs::{
-    input::EmptyVisualLeafInput,
-    layout::VStackLayout,
     run_app,
     style::Stylize,
-    visual::{TextBlock, TreeVisual},
-    Attribute, Color,
+    visual::{TextBlock, VStack},
+    vstack, Attribute, Color,
 };
 
-fn main() {
-    let visual = TreeVisual::<VStackLayout, EmptyVisualLeafInput>::vstack(vec![
-        Box::new(TextBlock::new("first column").background(Color::Red)),
-        Box::new(TextBlock::new("second column").foreground(Color::Cyan)),
-        Box::new(
-            TextBlock::new("third column")
-                .attributes(Attribute::Underlined.into())
-                .underline_color(Color::Blue),
-        ),
-    ]);
+fn main() -> ExitCode {
+    let visual = vstack![
+        TextBlock::new("first column").background(Color::Red),
+        TextBlock::new("second column").foreground(Color::Cyan),
+        TextBlock::new("third column")
+            .attributes(Attribute::Underlined.into())
+            .underline_color(Color::Blue),
+        vstack![
+            TextBlock::new("forth column").background(Color::White),
+            TextBlock::new("fifth column").foreground(Color::Blue)
+        ]
+    ];
 
-    run_app(visual);
+    run_app(visual)
 }
