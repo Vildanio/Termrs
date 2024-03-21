@@ -1,89 +1,66 @@
 use std::{
     io::{self, Write},
     process::ExitCode,
-    time::{Duration, Instant},
 };
 
 use crate::{
     buffer::{Terminal, VirtualBuffer},
     input::{
-        self, Event, KeyEventArgs, KeyEventKind, MouseButtonEventArgs, MouseEventArgs,
-        MouseEventKind, MouseWheelEventArgs, PasteEventArgs,
+        Event, KeyEventArgs, KeyEventKind, MouseButtonEventArgs, MouseEventArgs, MouseEventKind,
+        MouseWheelEventArgs, PasteEventArgs,
     },
     visual::{MutableContextAction, RetainedMutableContext, Visual},
-    Size,
+    EventLoop, Size,
 };
 
-const TICK_DURATION: Duration = Duration::from_millis(250);
-
-/// Runs App using the given visual as a root visual.
+/// Runs [`Visual`] using the given visual as a root visual
+/// and created [`Terminal`] from stdout.
 pub fn run_app(visual: impl Visual) -> ExitCode {
     let terminal = Terminal::<io::Stdout>::from_stdout();
 
-    App::new(visual, terminal).start(TICK_DURATION)
+    let mut app = VisualApp::new(visual, terminal);
+
+    EventLoop::default().run(&mut app)
 }
 
 /// Provides event loop and root mutable context.
-pub struct App<V, W>
+pub struct VisualApp<V, W>
 where
     W: Write,
     V: Visual,
 {
     visual: V,
     terminal: Terminal<W>,
-    /// # Returns
-    /// None — if termination not requested
-    /// Some — if termination was requested
-    exit_code: Option<ExitCode>,
     /// Is the root visual focused or not
     is_focused: bool,
 }
 
-impl<V, W> App<V, W>
+/// Processes events from [`EventLoop`].
+pub trait EventHandler {
+    /// Processes event loop start.
+    fn on_start(&mut self);
+
+    /// Processes the given event and returns value indicating
+    /// whether event loop should exit or not.
+    fn on_event(&mut self, event: &Event) -> Option<ExitCode>;
+
+    /// Processes event loop exit.
+    fn on_exit(&mut self);
+}
+
+impl<V, W> EventHandler for VisualApp<V, W>
 where
     W: Write,
     V: Visual,
 {
-    pub fn new(visual: V, terminal: Terminal<W>) -> Self {
-        Self {
-            visual,
-            terminal,
-            is_focused: false,
-            exit_code: None,
-        }
-    }
-
-    /// Starts loop of input events processing.
-    pub fn start(&mut self, tick_rate: Duration) -> ExitCode {
-        let mut last_tick = Instant::now();
-
+    fn on_start(&mut self) {
         crossterm::terminal::enable_raw_mode().unwrap();
 
         // draw for the first time
         self.redraw();
-
-        loop {
-            // exit if requested
-            if let Some(exit_code) = self.exit_code {
-                crossterm::terminal::disable_raw_mode().unwrap();
-
-                break exit_code;
-            }
-
-            let timeout = tick_rate.saturating_sub(last_tick.elapsed());
-            if input::poll(timeout).unwrap() {
-                let event = input::read().unwrap();
-
-                self.process_event(&event);
-            }
-
-            if last_tick.elapsed() >= tick_rate {
-                last_tick = Instant::now();
-            }
-        }
     }
 
-    pub fn process_event(&mut self, event: &Event) {
+    fn on_event(&mut self, event: &Event) -> Option<ExitCode> {
         let mut actions = vec![];
         let context = &mut RetainedMutableContext::new(&mut actions);
 
@@ -156,19 +133,47 @@ where
 
                 let size = desired_size.clip(self.terminal.size());
 
-                let mut virtual_buffer =
-                    VirtualBuffer::new(&mut self.terminal, size.into());
+                let mut virtual_buffer = VirtualBuffer::new(&mut self.terminal, size.into());
 
                 self.visual.draw(&mut virtual_buffer, size);
             }
         }
 
+        let mut exit_code = None;
+        let mut redraw = false;
+        let mut is_focused = self.is_focused;
+
         for action in actions {
             match action {
-                MutableContextAction::Redraw => self.redraw(),
-                MutableContextAction::SetFocus(focus) => self.is_focused = focus,
-                MutableContextAction::Terminate(exit_code) => self.exit_code = Some(exit_code),
+                MutableContextAction::Redraw => redraw = true,
+                MutableContextAction::SetFocus(focus) => is_focused = focus,
+                MutableContextAction::Terminate(exit_code_val) => exit_code = Some(exit_code_val),
             }
+        }
+
+        if redraw {
+            self.redraw();
+        }
+
+        self.is_focused = is_focused;
+        exit_code
+    }
+
+    fn on_exit(&mut self) {
+        crossterm::terminal::disable_raw_mode().unwrap();
+    }
+}
+
+impl<V, W> VisualApp<V, W>
+where
+    W: Write,
+    V: Visual,
+{
+    pub fn new(visual: V, terminal: Terminal<W>) -> Self {
+        Self {
+            visual,
+            terminal,
+            is_focused: false,
         }
     }
 
