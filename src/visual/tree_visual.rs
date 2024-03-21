@@ -10,9 +10,13 @@ use crate::{
 };
 
 /// Composes other visuals to implement the [`Visual`].
-pub struct TreeVisual<'a> {
+pub struct TreeVisual<'a, L, I>
+where
+    L: Layout,
+    I: VisualLeafInput,
+{
     /// The drawing and measuring strategy.
-    layout: Box<dyn Layout>,
+    layout: L,
 
     /// Visual which handled input events.
     ///
@@ -20,18 +24,18 @@ pub struct TreeVisual<'a> {
     focused: Option<&'a mut Box<dyn Visual>>,
 
     /// Object which handles input before children.
-    input_handler: Box<dyn VisualLeafInput>,
+    input_handler: I,
 
     /// Visuals which used by layout
     children: Vec<Box<dyn Visual>>,
 }
 
-impl<'a> TreeVisual<'a> {
-    pub fn new(
-        layout: Box<dyn Layout>,
-        input_handler: Box<dyn VisualLeafInput>,
-        children: Vec<Box<dyn Visual>>,
-    ) -> Self {
+impl<'a, L, I> TreeVisual<'a, L, I>
+where
+    L: Layout,
+    I: VisualLeafInput,
+{
+    pub fn new(layout: L, input_handler: I, children: Vec<Box<dyn Visual>>) -> Self {
         Self {
             layout,
             children,
@@ -39,13 +43,13 @@ impl<'a> TreeVisual<'a> {
             focused: None,
         }
     }
-    
+
     pub fn with_children(mut self, children: Vec<Box<dyn Visual>>) -> Self {
         self.children = children;
         self
     }
 
-    pub fn with_input_handler(mut self, input_handler: Box<dyn VisualLeafInput>) -> Self {
+    pub fn with_input_handler(mut self, input_handler: I) -> Self {
         self.input_handler = input_handler;
         self
     }
@@ -55,16 +59,18 @@ impl<'a> TreeVisual<'a> {
         &self.children
     }
 
-    pub fn vstack() -> TreeVisual<'a> {
-        TreeVisual::new(
-            Box::new(VStackLayout),
-            Box::new(EmptyVisualLeafInput),
-            vec![],
-        )
+    pub fn vstack(
+        children: Vec<Box<dyn Visual>>,
+    ) -> TreeVisual<'a, VStackLayout, EmptyVisualLeafInput> {
+        TreeVisual::new(VStackLayout, EmptyVisualLeafInput, children)
     }
 }
 
-impl<'a> VisualInput for TreeVisual<'a> {
+impl<'a, L, I> VisualInput for TreeVisual<'a, L, I>
+where
+    L: Layout,
+    I: VisualLeafInput,
+{
     fn on_paste(&mut self, args: &PasteEventArgs, visual_context: &mut dyn MutableContext) -> bool {
         let mut bubble_handled = false;
         let tunnel_handled = self.input_handler.tunnel_paste(args, visual_context);
@@ -225,7 +231,11 @@ impl<'a> VisualInput for TreeVisual<'a> {
     }
 }
 
-impl<'a> Draw for TreeVisual<'a> {
+impl<'a, L, I> Draw for TreeVisual<'a, L, I>
+where
+    L: Layout,
+    I: VisualLeafInput,
+{
     fn draw(&self, buffer: &mut dyn WriteBuffer, available_size: Size) -> Size {
         let arrange = self.layout.draw(&self.children, buffer, available_size);
 
@@ -237,4 +247,9 @@ impl<'a> Draw for TreeVisual<'a> {
     }
 }
 
-impl<'a> Visual for TreeVisual<'a> {}
+impl<'a, L, I> Visual for TreeVisual<'a, L, I>
+where
+    L: Layout,
+    I: VisualLeafInput,
+{
+}

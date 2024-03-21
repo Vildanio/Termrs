@@ -57,7 +57,7 @@ where
     pub fn start(&mut self, tick_rate: Duration) -> ExitCode {
         let mut last_tick = Instant::now();
 
-        crossterm::terminal::enable_raw_mode().expect("Cannot enable raw mode");
+        crossterm::terminal::enable_raw_mode().unwrap();
 
         // draw for the first time
         self.redraw();
@@ -181,6 +181,6 @@ where
 
         self.visual.draw(&mut self.terminal, draw_size);
 
-        self.terminal.flush().expect("Cannot flush terminal");
+        self.terminal.flush().unwrap();
     }
 }

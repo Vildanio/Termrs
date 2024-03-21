@@ -1,4 +1,6 @@
 use termrs::{
+    input::EmptyVisualLeafInput,
+    layout::VStackLayout,
     run_app,
     style::Stylize,
     visual::{TextBlock, TreeVisual},
@@ -6,7 +8,7 @@ use termrs::{
 };
 
 fn main() {
-    let visual = TreeVisual::vstack().with_children(vec![
+    let visual = TreeVisual::<VStackLayout, EmptyVisualLeafInput>::vstack(vec![
         Box::new(TextBlock::new("first column").background(Color::Red)),
         Box::new(TextBlock::new("second column").foreground(Color::Cyan)),
         Box::new(
