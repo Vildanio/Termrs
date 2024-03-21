@@ -4,14 +4,13 @@ use std::{
     time::{Duration, Instant},
 };
 
-use crossterm::event::{self, Event, KeyEventKind, MouseEventKind};
-
 use crate::{
     buffer::{Terminal, VirtualBuffer},
     input::{
-        KeyEventArgs, MouseButtonEventArgs, MouseEventArgs, MouseWheelEventArgs, PasteEventArgs,
+        self, Event, KeyEventArgs, KeyEventKind, MouseButtonEventArgs, MouseEventArgs,
+        MouseEventKind, MouseWheelEventArgs, PasteEventArgs,
     },
-    visual::{RetainedVisualContext, Visual, VisualContextAction},
+    visual::{MutableContextAction, RetainedMutableContext, Visual},
     Size,
 };
 
@@ -66,14 +65,14 @@ where
         loop {
             // exit if requested
             if let Some(exit_code) = self.exit_code {
-                crossterm::terminal::disable_raw_mode().expect("Cannot disable raw mode");
+                crossterm::terminal::disable_raw_mode().unwrap();
 
                 break exit_code;
             }
 
             let timeout = tick_rate.saturating_sub(last_tick.elapsed());
-            if crossterm::event::poll(timeout).unwrap() {
-                let event = event::read().unwrap();
+            if input::poll(timeout).unwrap() {
+                let event = input::read().unwrap();
 
                 self.process_event(&event);
             }
@@ -86,7 +85,7 @@ where
 
     pub fn process_event(&mut self, event: &Event) {
         let mut actions = vec![];
-        let context = &mut RetainedVisualContext::new(&mut actions);
+        let context = &mut RetainedMutableContext::new(&mut actions);
 
         match event {
             Event::FocusGained => self.visual.on_got_focus(context),
@@ -166,9 +165,9 @@ where
 
         for action in actions {
             match action {
-                VisualContextAction::Redraw => self.redraw(),
-                VisualContextAction::SetFocus(focus) => self.is_focused = focus,
-                VisualContextAction::Terminate(exit_code) => self.exit_code = Some(exit_code),
+                MutableContextAction::Redraw => self.redraw(),
+                MutableContextAction::SetFocus(focus) => self.is_focused = focus,
+                MutableContextAction::Terminate(exit_code) => self.exit_code = Some(exit_code),
             }
         }
     }

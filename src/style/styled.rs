@@ -1,6 +1,4 @@
-use crossterm::style::{Attributes, Color};
-
-use super::Style;
+use super::{Attributes, Color, Style};
 
 /// A trait for objects that have a `Style`.
 ///

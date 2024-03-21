@@ -4,10 +4,9 @@ use crate::{
         KeyEventArgs, MouseButtonEventArgs, MouseEventArgs, MouseWheelEventArgs, PasteEventArgs,
         VisualInput, VisualLeafInput,
     },
+    visual::{Draw, MutableContext, Visual},
     Size,
 };
-
-use super::{Draw, MutableContext, Visual};
 
 pub trait ContentLayout {
     fn draw(&self, child: &dyn Visual, buffer: &mut dyn WriteBuffer, available_size: Size) -> Size;
@@ -15,7 +14,7 @@ pub trait ContentLayout {
     fn measure(&self, child: &dyn Visual, constraints: Size) -> Size;
 }
 
-/// Visual which can have a child visual.
+/// Visual which can have a single child visual.
 pub struct ContentVisual {
     child: Box<dyn Visual>,
     is_child_focused: bool,

@@ -1,8 +1,8 @@
-use crossterm::style::Color;
-
-use crate::{style::Style, Attribute, Position, Rect};
-
-use super::{ReadBuffer, WriteBuffer};
+use crate::{
+    buffer::{ReadBuffer, WriteBuffer},
+    style::{Color, Style},
+    Attribute, Position, Rect,
+};
 
 pub struct VirtualBuffer<'a> {
     original: Box<&'a mut dyn WriteBuffer>,

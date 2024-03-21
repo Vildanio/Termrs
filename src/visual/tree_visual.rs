@@ -5,10 +5,9 @@ use crate::{
         MouseWheelEventArgs, PasteEventArgs, VisualInput, VisualLeafInput,
     },
     layout::{Layout, VStackLayout},
+    visual::{Draw, MutableContext, Visual},
     Size,
 };
-
-use super::{Draw, MutableContext, Visual};
 
 /// Composes other visuals to implement the [`Visual`].
 pub struct TreeVisual<'a> {
@@ -48,9 +47,6 @@ impl<'a> TreeVisual<'a> {
             vec![],
         )
     }
-
-    // i think it is not neccessary to declare set_layout method
-    // because there is no much cases when it is needed.
 
     pub fn set_children(&mut self, children: Vec<Box<dyn Visual>>) {
         self.children = children;

@@ -14,8 +14,11 @@ use crossterm::{
     QueueableCommand,
 };
 
-use super::{ReadBuffer, WriteBuffer};
-use crate::{style::Style, Attribute, Color, Position, Rect, Size};
+use crate::{
+    buffer::{ReadBuffer, WriteBuffer},
+    style::Style,
+    Attribute, Color, Position, Rect, Size,
+};
 
 pub struct Terminal<W: Write> {
     /// The writer used to send commands to the terminal.

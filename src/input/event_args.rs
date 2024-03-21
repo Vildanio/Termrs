@@ -1,7 +1,7 @@
-use crossterm::event::{KeyEvent, MouseEvent};
-
-use super::{KeyCode, KeyEventState, KeyModifiers, MouseButton};
-use crate::Position;
+use crate::{
+    input::{KeyCode, KeyEvent, KeyEventState, KeyModifiers, MouseButton, MouseEvent},
+    Position,
+};
 
 pub struct KeyEventArgs {
     /// The key itself.
