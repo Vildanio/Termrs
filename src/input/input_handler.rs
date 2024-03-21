@@ -1,3 +1,5 @@
+#![allow(unused)]
+
 use crate::{
     input::{
         KeyEventArgs, MouseButtonEventArgs, MouseEventArgs, MouseWheelEventArgs, PasteEventArgs,
